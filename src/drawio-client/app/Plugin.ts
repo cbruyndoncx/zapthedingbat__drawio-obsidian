@@ -75,6 +75,15 @@ export default class Plugin {
       return;
     }
 
+    const fileData = this.getFullFileData(currentFile);
+    if (fileData) {
+      this.frameMessenger.sendMessage({
+        event: EventMessageEvents.Change,
+        data: fileData,
+      });
+      return;
+    }
+
     if (this.fileFormat === "svg") {
       // Update svg format
       const svg = await this.getSvg(this.app.editor);
@@ -92,6 +101,38 @@ export default class Plugin {
     }
   }
 
+  private getFullFileData(currentFile: any): string | null {
+    if (
+      currentFile &&
+      typeof currentFile.updateFileData === "function" &&
+      typeof currentFile.getData === "function"
+    ) {
+      try {
+        currentFile.updateFileData();
+        const data = currentFile.getData();
+        if (typeof data === "string" && data.length > 0) {
+          return data;
+        }
+      } catch (err) {
+        console.warn("Unable to update drawio file data", err);
+      }
+    }
+
+    const appWithFileData = this.app as any;
+    if (typeof appWithFileData.getFileData === "function") {
+      try {
+        const data = appWithFileData.getFileData(true);
+        if (typeof data === "string" && data.length > 0) {
+          return data;
+        }
+      } catch (err) {
+        console.warn("Unable to read drawio file data", err);
+      }
+    }
+
+    return null;
+  }
+
   private xmlToString(xml: Node) {
     return new XMLSerializer().serializeToString(xml);
   }
@@ -107,11 +148,37 @@ export default class Plugin {
     //     }
     // );
 
-    // Hide page view
-    app.setPageVisible(false);
-
     // Collapse the format panel
     app.toggleFormatPanel(false);
+
+    patch(EditorUi.prototype, "setStatusText", (fn) => function (value: string) {
+      if (!this.statusContainer) {
+        return;
+      }
+      return fn.call(this, value);
+    });
+
+    const graphConstructor = (window as any).Graph;
+    if (graphConstructor) {
+      patch(
+        graphConstructor,
+        "addLightDarkColors",
+        (fn) =>
+          function (
+            node: Element,
+            attrName: string,
+            useLightColor: boolean,
+            visitor: (elt: Element, key: string, value: string) => boolean
+          ) {
+            try {
+              return fn.call(this, node, attrName, useLightColor, visitor);
+            } catch (err) {
+              console.warn("drawio addLightDarkColors failed", err);
+              return false;
+            }
+          }
+      );
+    }
 
     // Stop Save and exit buttons being created when a new file is loaded
     this.removeMenubars(app);
@@ -124,8 +191,10 @@ export default class Plugin {
     patch(EditorUi.prototype, "addEmbedButtons", (fn) => function () {});
 
     // Remove the status elements because this plugin manages saving the diagram
-    app.statusContainer.remove();
-    app.statusContainer = null;
+    if (app.statusContainer) {
+      app.statusContainer.style.display = "none";
+      app.statusContainer.textContent = "";
+    }
     if (
       app.menubarContainer.parentElement.firstChild === app.menubarContainer &&
       app.menubarContainer.parentElement.childElementCount === 1

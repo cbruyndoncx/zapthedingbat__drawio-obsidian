@@ -1,7 +1,10 @@
 declare module "drawio" {
   import { mxWindow } from "mxgraph";
 
-  export interface DrawioFile {}
+  export interface DrawioFile {
+    getData?(): string;
+    updateFileData?(): void;
+  }
 
   export interface Graph {
     model: any;
@@ -28,6 +31,7 @@ declare module "drawio" {
       statusContainer: HTMLElement;
       formatWindow: { window: mxWindow };
       getCurrentFile(): DrawioFile;
+      getFileData?(): string;
       toggleFormatPanel(visible: boolean): void;
       setPageVisible(visible: boolean): void;
       static main(callback?: (app: App) => void, createUi?: () => void): void;

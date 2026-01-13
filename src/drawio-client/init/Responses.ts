@@ -1,19 +1,15 @@
 import diaTxt from "inline!./drawio/src/main/webapp/resources/dia.txt";
-
-//import commonCss from "inline!./drawio/src/main/webapp/mxgraph/css/common.css";
-import drawioCss from "inline!./src/drawio-client/drawio.css";
-
-//import darkCss from "inline!./drawio/src/main/webapp/styles/dark.css";
-import darkCss from "inline!./src/assets/dark.css";
+import commonCss from "inline!./drawio/src/main/webapp/mxgraph/css/common.css";
+import grapheditorCss from "inline!./drawio/src/main/webapp/styles/grapheditor.css";
 
 //import stencils from "inline!./drawio/src/main/webapp/js/stencils.min.js";
-import stencils from "inline!./src/assets/shapes.js";
+import stencils from "inline!./drawio/src/main/webapp/js/stencils.min.js";
 
 //import extensions from "inline!./drawio/src/main/webapp/js/extensions.min.js";
-import extensions from "inline!./src/assets/extensions.js";
+import extensions from "inline!./drawio/src/main/webapp/js/extensions.min.js";
 
 //import shapes from "inline!./drawio/src/main/webapp/js/shapes-14-6-5.min.js";
-import shapes from "inline!./src/assets/shapes.js";
+import shapes from "inline!./drawio/src/main/webapp/js/shapes-14-6-5.min.js";
 
 import maximizeGif from "base64!./drawio/src/main/webapp/mxgraph/images/maximize.gif";
 import resizeGif from "base64!./drawio/src/main/webapp/mxgraph/images/resize.gif";
@@ -22,18 +18,13 @@ import drawlogoSvg from "inline!./drawio/src/main/webapp/images/drawlogo.svg";
 export default [
   {
     mediaType: "text/css",
-    href: "local://drawio.css",
-    source: drawioCss,
-  },
-  {
-    mediaType: "text/css",
     href: "mxgraph/css/common.css",
-    source: "",
+    source: commonCss,
   },
   {
     mediaType: "text/css",
-    href: "styles/dark.css",
-    source: darkCss,
+    href: "styles/grapheditor.css",
+    source: grapheditorCss,
   },
   {
     mediaType: "text/plain",

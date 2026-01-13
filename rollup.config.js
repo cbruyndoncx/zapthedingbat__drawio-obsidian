@@ -26,6 +26,7 @@ export default [
       inline(),
       typescript({
         tsconfig: "./tsconfig.es5.json",
+        typescript: require("typescript"),
       }),
       terser(),
       storeBundle(chunkCache),
@@ -43,6 +44,7 @@ export default [
       inline(),
       typescript({
         tsconfig: "./tsconfig.es5.json",
+        typescript: require("typescript"),
       }),
       terser(),
       storeBundle(chunkCache),
@@ -63,7 +65,9 @@ export default [
       clear({ targets: ["./dist"] }),
       retrieveBundle(chunkCache),
       inline(),
-      typescript(),
+      typescript({
+        typescript: require("typescript"),
+      }),
       terser(),
       copy({
         targets: [

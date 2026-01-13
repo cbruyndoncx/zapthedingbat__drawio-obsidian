@@ -9,6 +9,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noImplicitAny": true,
+    "skipLibCheck": true,
     "target": "ES6"
   },
   "include": ["./src/**/*.ts", "./test/**/*.ts", "./typings/*.ts"]

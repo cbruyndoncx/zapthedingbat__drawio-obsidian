@@ -234,7 +234,11 @@ window.parent.postMessage("{\\"event\\":\\"iframe\\"}",'*');
         break;
       case EventMessageEvents.Change:
         // Update the file data so it can be reloaded if the frame is reinitialized
-        this.file.data = message.data;
+        if (!this.file) {
+          this.file = { data: message.data };
+        } else {
+          this.file.data = message.data;
+        }
         this.dispatchEvent(new FileChangeEvent(message.data));
         break;
       case EventMessageEvents.FocusIn:

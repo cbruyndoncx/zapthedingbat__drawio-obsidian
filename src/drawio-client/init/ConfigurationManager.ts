@@ -55,6 +55,11 @@ export interface DrawioUrlParams {
   saveAndExit?: "0";
 
   /**
+   * Enables math typesetting (MathJax) when set to 1.
+   */
+  math?: DrawioUrlParamsFlag;
+
+  /**
    * Displays a Save and Exit button instead of a Save button.
    * Instead of using this URL parameter, you can specify this setting in the load message. If this is used, then the saveAndExit URL parameter is ignored.
    */
@@ -79,7 +84,7 @@ export interface DrawioUrlParams {
   /**
    * Undocumented. Hides page controls.
    */
-  pages?: "0";
+  pages?: "0" | "1";
 
   /**
    * Sets the default pageVisible to false.
@@ -266,10 +271,11 @@ const defaultConfiguration: DrawioConfig = {
 const defaultUrlParams: DrawioUrlParams = {
   embed: "1",
   configure: "0",
+  math: "0",
   noExitBtn: "1",
   noSaveBtn: "1",
   noFileMenu: "1",
-  pages: "0",
+  pages: "1",
   proto: "json",
   pv: "0",
   saveAndExit: "0",

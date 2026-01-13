@@ -73,6 +73,7 @@ export class RequestManager {
       });
       blobUrl = URL.createObjectURL(blob);
     }
+
     // Add result to cache
     this.blobCache.set(url, blobUrl);
     return blobUrl;
@@ -80,12 +81,41 @@ export class RequestManager {
 
   private interceptStylesheets() {
     const resolveResourceUrl = this.resolveResourceUrl.bind(this);
+    const getCssSource = (href: string) => {
+      const file = this.responses.find((item) => item.href === href);
+      if (!file || !file.mediaType.startsWith("text/css")) {
+        return null;
+      }
+      if (!file.source) {
+        return "";
+      }
+      if (file.mediaType.endsWith(";base64")) {
+        try {
+          return atob(file.source);
+        } catch (err) {
+          console.warn("Unable to decode css response", err);
+          return "";
+        }
+      }
+      return file.source;
+    };
     patch(
       HTMLLinkElement.prototype,
       "setAttribute",
       (fn) =>
         function (qualifiedName: string, value: string) {
           if (qualifiedName === "href") {
+            const cssSource = getCssSource(value);
+            if (cssSource !== null) {
+              const styleElement = document.createElement("style");
+              styleElement.textContent = cssSource;
+              if (this.parentNode) {
+                this.parentNode.insertBefore(styleElement, this);
+              } else if (document.head) {
+                document.head.appendChild(styleElement);
+              }
+              return;
+            }
             value = resolveResourceUrl(value);
           }
           return fn.call(this, qualifiedName, value);
@@ -135,37 +165,46 @@ export class RequestManager {
 
   private interceptCss() {
     const resolveResourceUrl = this.resolveResourceUrl.bind(this);
-    const htmlElementStylePropertyDescriptor = Object.getOwnPropertyDescriptor(
-      HTMLElement.prototype,
-      "style"
+    const urlPropertyPattern = /(url\([\'\"]?)([^\'\"\)]+)([\'\"]?\))/g;
+    const rewriteUrls = (value: string) => {
+      if (!value || value.indexOf("url(") === -1) {
+        return value;
+      }
+      return value.replace(
+        urlPropertyPattern,
+        (_match, a, b, c) => `${a}${resolveResourceUrl(b)}${c}`
+      );
+    };
+
+    patch(
+      CSSStyleDeclaration.prototype,
+      "setProperty",
+      (fn) =>
+        function (propertyName: string, value: string | null, priority?: string) {
+          if (typeof value === "string") {
+            value = rewriteUrls(value);
+          }
+          return fn.call(this, propertyName, value, priority);
+        }
     );
-    const urlPropertyPattern = /(url\([\'\"]?)(.*)([\'\"]?\))/g;
-    Object.defineProperty(HTMLElement.prototype, "style", {
-      get() {
-        // Get the real CSS style declaration
-        const cssStyleDeclaration =
-          htmlElementStylePropertyDescriptor.get.call(this);
-        return new Proxy(cssStyleDeclaration, {
-          set(target, propertyKey, value, receiver) {
-            if (typeof value === "string") {
-              if (urlPropertyPattern.test(value)) {
-                value = value.replace(
-                  urlPropertyPattern,
-                  (_, a, b, c) => `${a}${resolveResourceUrl(b)}${c}`
-                );
-              }
-              try {
-                return Reflect.set(target, propertyKey, value);
-              } catch (err) {
-                console.warn(err);
-              }
-            } else {
-              return Reflect.set(target, propertyKey, value, receiver);
-            }
-          },
-        });
-      },
-    });
+
+    const cssTextDescriptor = Object.getOwnPropertyDescriptor(
+      CSSStyleDeclaration.prototype,
+      "cssText"
+    );
+    if (cssTextDescriptor && cssTextDescriptor.set) {
+      Object.defineProperty(CSSStyleDeclaration.prototype, "cssText", {
+        get: cssTextDescriptor.get,
+        set(value: string) {
+          if (typeof value === "string") {
+            value = rewriteUrls(value);
+          }
+          return cssTextDescriptor.set.call(this, value);
+        },
+        configurable: cssTextDescriptor.configurable,
+        enumerable: cssTextDescriptor.enumerable,
+      });
+    }
   }
 
   private interceptXhrRequests() {
@@ -176,7 +215,6 @@ export class RequestManager {
       (fn) =>
         function (_method: string, url: string, ...args: any[]) {
           url = resolveResourceUrl(url);
-          console.warn("XHR", _method, url);
           return fn.call(this, _method, url, ...args);
         }
     );
@@ -186,7 +224,6 @@ export class RequestManager {
     this.interceptStylesheets();
     this.interceptScripts();
     this.interceptImages();
-    this.interceptCss();
     this.interceptXhrRequests();
   }
 }
