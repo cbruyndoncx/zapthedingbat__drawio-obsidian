@@ -138,6 +138,10 @@ export default class Plugin {
   }
 
   private modifyUi(app: App) {
+    if (this.isReadOnlyMode()) {
+      this.applyReadOnlyMode(app);
+    }
+
     // TODO: Manage dark mode switching
     // patch(
     //   EditorUi.prototype,
@@ -185,6 +189,55 @@ export default class Plugin {
 
     // Hide menu items that aren't relevant
     this.removeMenus();
+  }
+
+  private isReadOnlyMode() {
+    const targetWindow = window as any;
+    return (
+      typeof targetWindow !== "undefined" &&
+      targetWindow.urlParams &&
+      targetWindow.urlParams.readOnly === "1"
+    );
+  }
+
+  private applyReadOnlyMode(app: App) {
+    const graph = app.editor.graph;
+    if (!graph) {
+      return;
+    }
+
+    const graphAny = graph as any;
+    if (typeof graphAny.setEnabled === "function") {
+      graphAny.setEnabled(false);
+    }
+    if (typeof graphAny.setTooltips === "function") {
+      graphAny.setTooltips(false);
+    }
+    if (typeof graphAny.setConnectable === "function") {
+      graphAny.setConnectable(false);
+    }
+    if (typeof graphAny.setPanning === "function") {
+      graphAny.setPanning(true);
+    }
+
+    [
+      graphAny.graphHandler,
+      graphAny.connectionHandler,
+      graphAny.selectionCellsHandler,
+      graphAny.popupMenuHandler,
+      graphAny.tooltipHandler,
+    ].forEach((handler) => {
+      if (handler && typeof handler.setEnabled === "function") {
+        handler.setEnabled(false);
+      }
+    });
+
+    const statusText =
+      '<div class="geStatusBox" title="Read-only mode">Read-only mode</div>';
+    const appAny = app as any;
+    if (typeof appAny.setStatusText === "function") {
+      appAny.setStatusText(statusText);
+    }
   }
 
   private removeMenubars(app: App) {

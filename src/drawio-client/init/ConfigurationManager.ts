@@ -60,6 +60,11 @@ export interface DrawioUrlParams {
   math?: DrawioUrlParamsFlag;
 
   /**
+   * Prevents editing, may be used to keep the diagram read-only.
+   */
+  readOnly?: DrawioUrlParamsFlag;
+
+  /**
    * Displays a Save and Exit button instead of a Save button.
    * Instead of using this URL parameter, you can specify this setting in the load message. If this is used, then the saveAndExit URL parameter is ignored.
    */
@@ -284,6 +289,7 @@ const defaultUrlParams: DrawioUrlParams = {
   dark: "0",
   rough: "1",
   sketch: "1",
+  readOnly: "0",
 };
 
 export class ConfigurationManager {
@@ -348,6 +354,7 @@ export class ConfigurationManager {
       dark: this.getDarkFromTheme(settings),
       rough: this.getRough(settings),
       sketch: this.getSketch(settings),
+      readOnly: this.getReadOnly(settings),
     };
     this.setUrlParams(urlParams);
   }
@@ -389,6 +396,10 @@ export class ConfigurationManager {
 
   private getSketch(settings: DiagramPluginSettings): DrawioUrlParamsFlag {
     return settings.theme.layout === SettingsTheme.sketch ? "1" : "0";
+  }
+
+  private getReadOnly(settings: DiagramPluginSettings): DrawioUrlParamsFlag {
+    return settings.readonly ? "1" : "0";
   }
 
   private getDrawioConfig(settings: DiagramPluginSettings): DrawioConfig {

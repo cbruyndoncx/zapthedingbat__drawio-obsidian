@@ -15,6 +15,7 @@ export interface DiagramPluginSettings {
   drawing: {
     sketch: optionalBoolean;
   };
+  readonly: boolean;
   cssSnippets: string[];
 }
 
@@ -27,5 +28,6 @@ export const DEFAULT_SETTINGS: DiagramPluginSettings = {
   drawing: {
     sketch: true,
   },
+  readonly: false,
   cssSnippets: [],
 };

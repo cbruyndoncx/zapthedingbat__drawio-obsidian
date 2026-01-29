@@ -233,6 +233,10 @@ window.parent.postMessage("{\\"event\\":\\"iframe\\"}",'*');
         this.dispatchEvent(new FileLoadEvent(message.xml));
         break;
       case EventMessageEvents.Change:
+        if (this.settings.readonly) {
+          return;
+        }
+
         // Update the file data so it can be reloaded if the frame is reinitialized
         if (!this.file) {
           this.file = { data: message.data };

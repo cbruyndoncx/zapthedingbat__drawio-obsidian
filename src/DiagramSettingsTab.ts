@@ -90,6 +90,18 @@ export default class DiagramSettingsTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Read-only mode")
+      .setDesc("Disable saving and editing changes to keep the diagram untouched.")
+      .addToggle((component) => {
+        component
+          .setValue(this.plugin.settings.readonly)
+          .onChange(async (value) => {
+            this.plugin.settings.readonly = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
       .setName("CSS snippets")
       .setDesc("Add paths to CSS snippets within the Vault, one by line. The snippets are used to modify the style of the diagram editor.")
         .addTextArea(text => text
