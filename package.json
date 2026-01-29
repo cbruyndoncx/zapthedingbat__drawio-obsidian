@@ -1,7 +1,7 @@
 {
-  "name": "drawio-obsidian",
-  "version": "1.5.0",
-  "description": "This is a draw.io plugin for Obsidian (https://obsidian.md)",
+  "name": "drawio-obsidian-fork-cb",
+  "version": "1.5.4-fork.1",
+  "description": "Draw.io plugin for Obsidian (fork by cbruyndoncx). Forked from zapthedingbat/drawio-obsidian.",
   "scripts": {
     "automation": "mocha --exit --config ./test/automation/.mocharc.json",
     "build": "rollup --config rollup.config.js"
