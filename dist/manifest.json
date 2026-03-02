@@ -1,0 +1,10 @@
+{
+  "id": "drawio-obsidian-fork-cb",
+  "name": "Diagrams (Fork)",
+  "version": "1.5.4-fork.1",
+  "minAppVersion": "0.9.12",
+  "description": "Draw.io diagrams for Obsidian (fork by cbruyndoncx). Adds read-only mode, multi-page support, and bug fixes. Forked from zapthedingbat/drawio-obsidian.",
+  "author": "Carine Bruyndoncx (original: Sam Greenhalgh)",
+  "authorUrl": "https://github.com/cbruyndoncx/zapthedingbat__drawio-obsidian",
+  "isDesktopOnly": true
+}
