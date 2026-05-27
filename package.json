@@ -1,6 +1,6 @@
 {
   "name": "drawio-obsidian-fork-cb",
-  "version": "1.5.4-fork.1",
+  "version": "1.5.4-fork.2",
   "description": "Draw.io plugin for Obsidian (fork by cbruyndoncx). Forked from zapthedingbat/drawio-obsidian.",
   "scripts": {
     "automation": "mocha --exit --config ./test/automation/.mocharc.json",
